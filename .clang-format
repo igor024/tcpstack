@@ -1,0 +1,20 @@
+BasedOnStyle: LLVM
+Language: Cpp
+IndentWidth: 4
+AllowShortFunctionsOnASingleLine: Empty
+DerivePointerAlignment: false
+PointerAlignment: Left
+IndentAccessModifiers: true
+IndentCaseLabels: true
+
+# The anti-bin-packing rules:
+BinPackParameters: false
+BinPackArguments: false
+AlignAfterOpenBracket: BlockIndent
+
+# NEW: Forbid grouping all parameters/arguments on the next line
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+
+# NEW: Force constructor initializers onto their own lines
+PackConstructorInitializers: Never
