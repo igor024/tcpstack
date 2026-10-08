@@ -21,7 +21,7 @@ std::string format_ip(const uint8_t* ip) {
     std::string res = "";
 
     return std::format(
-        "{:02x}:{:02x}:{:02x}:{:02x}",
+        "{}.{}.{}.{}",
         ip[0],
         ip[1],
         ip[2],
