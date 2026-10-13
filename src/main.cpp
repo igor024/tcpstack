@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <bits/stdc++.h>
 #include <cstdint>
+#include <sys/types.h>
 using namespace std;
 
 constexpr int BUF_LEN = 100;
@@ -64,7 +65,7 @@ int main() {
                 // Yes: (almost definitely)
                 //   [optionally check the hardware length ar_hln]
                 uint8_t hw_size = in_arp_hdr->get_hw_size();
-                cout << "hardware size: " << hw_size << "\n";
+                cout << "hardware size: " << (int) hw_size << "\n";
 
                 //   ?Do I speak the protocol in ar_pro?
 
@@ -76,7 +77,7 @@ int main() {
                     //   Yes:
                     //     [optionally check the protocol length ar_pln]
                     uint8_t pro_size = in_arp_hdr->get_pro_size();
-                    cout << "protocol size: " << pro_size << "\n";
+                    cout << "protocol size: " << (int) pro_size << "\n";
 
                     //     Merge_flag := false
                     bool merge_flag = false;
