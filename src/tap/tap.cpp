@@ -1,4 +1,5 @@
 #include "./tap.hpp"
+#include <cstdint>
 #include <cstring>
 
 tap_device::tap_device(char* in_name) {
@@ -62,4 +63,8 @@ ssize_t tap_device::read_tap(uint8_t* buf, size_t buf_len, eth_hdr*& hdr) {
     hdr = reinterpret_cast<eth_hdr*>(buf);
 
     return read_res;
+}
+
+ssize_t tap_device::write_eth(eth_hdr* in_eth_hdr) {
+    return write(fd, in_eth_hdr, sizeof(eth_hdr));
 }

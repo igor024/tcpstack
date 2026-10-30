@@ -9,6 +9,8 @@ class arp_hdr {
         uint8_t get_hw_size();
         uint8_t get_pro_size();
         uint8_t* get_payload();
+        uint16_t get_op_code();
+        void set_op_code(uint16_t in_op_code);
 
     private:
         uint16_t hw_type;  // typically 0x0001 for ethernet
