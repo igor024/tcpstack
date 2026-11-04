@@ -1,6 +1,8 @@
+#include <cstddef>
 #include <cstdint>
 #include <format>
 #include <string>
+#include <time.h>
 
 namespace util {
 
@@ -31,6 +33,15 @@ std::string format_ip(const uint32_t ip) {
 
 uint32_t create_ip(const uint8_t a, const uint8_t b, const uint8_t c, const uint8_t d) {
     return (uint32_t) a + b * 256 + c * 256*256 + d * 256*256;
+}
+
+void rand_mac(uint8_t* dest) {
+    srand(time(NULL));
+    dest[0] = 0x02;
+
+    for (int i = 1; i < 6; ++i) {
+        dest[i] = rand() & 0xff;
+    }
 }
 
 }

@@ -133,10 +133,16 @@ int main() {
                             //Reply with my ip & mac
                             in_ipv4->set_d_ip(in_ipv4->get_s_ip());
                             in_ipv4->set_d_mac(in_ipv4->get_d_mac());
+
                             in_ipv4->set_s_ip(util::create_ip(10, 0, 0, 4));
-                            uint8_t new_s_mac[6] = //HELP!
-                            in_ipv4->set_s_mac(new_s_mac);
+
+                            uint8_t r_mac[6];
+                            util::rand_mac(r_mac);
+                            in_ipv4->set_s_mac(r_mac);
+
                             in_arp->set_op_code(ARP_REP);
+
+                            dev->write_eth(in_eth)
                         }
 
 
