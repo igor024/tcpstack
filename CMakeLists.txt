@@ -10,4 +10,5 @@ target_sources(tcp
         src/arp/arp_hdr.cpp
         src/arp/arp_ipv4.cpp
         src/ethernet/ethernet.cpp
+        src/util/util.cpp
 )

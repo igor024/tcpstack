@@ -65,6 +65,19 @@ ssize_t tap_device::read_tap(uint8_t* buf, size_t buf_len, eth_hdr*& hdr) {
     return read_res;
 }
 
-ssize_t tap_device::write_eth(eth_hdr* in_eth_hdr) {
-    return write(fd, in_eth_hdr, sizeof(eth_hdr));
+bool tap_device::write_eth(const eth_hdr* in_eth_hdr, size_t frame_size) {
+    ssize_t bytes_written = write(fd, in_eth_hdr, frame_size);
+
+    if (bytes_written < 0) {
+        perror("Failed to write frame: ");
+        return false;
+    }
+
+    if (static_cast<size_t>(bytes_written) < frame_size) {
+        std::cerr << bytes_written << " bytes written out of " << frame_size
+                  << "\n";
+        return false;
+    }
+
+    return true;
 }

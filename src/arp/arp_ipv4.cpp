@@ -26,7 +26,7 @@ const uint32_t arp_ipv4::get_s_ip() const {
     return s_ip;
 }
 
-void arp_ipv4::set_s_ip(const uint16_t in_s_ip) {
+void arp_ipv4::set_s_ip(const uint32_t in_s_ip) {
     s_ip = in_s_ip;
 }
 
@@ -42,8 +42,8 @@ const uint32_t arp_ipv4::get_d_ip() const {
     return d_ip;
 }
 
-void arp_ipv4::set_d_ip(const uint16_t in_d_ip) {
-    s_ip = in_d_ip;
+void arp_ipv4::set_d_ip(const uint32_t in_d_ip) {
+    d_ip = in_d_ip;
 }
 
 

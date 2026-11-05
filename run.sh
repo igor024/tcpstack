@@ -11,5 +11,5 @@ sudo ip addr replace 10.0.0.1/24 dev tap0
 process_id=$!
 wait $process_id
 
-sudo arping -I tap0 10.0.0.1 &
+sudo arping -I tap0 10.0.0.4 &
 sudo ./build/tcp

@@ -20,18 +20,28 @@ constexpr uint16_t CACHE_LEN = 0x0010;
 constexpr uint16_t ARP_REQ = 0x0001;
 constexpr uint16_t ARP_REP = 0x0002;
 
+constexpr size_t frame_size =
+    sizeof(eth_hdr) + sizeof(arp_hdr) + sizeof(arp_ipv4);
+
 struct trans_entry {
-    uint16_t hw_type;
-    uint8_t s_mac[6];
-    uint16_t pro_type;
-    uint32_t s_ip;
+        uint16_t hw_type;
+        uint8_t s_mac[6];
+        uint16_t pro_type;
+        uint32_t s_ip;
 };
 
-trans_entry* trans_table[CACHE_LEN];
+trans_entry trans_table[CACHE_LEN];
 uint16_t trans_table_idx = 0;
 
 int main() {
-    cout << "Hi!";
+    srand(time(NULL));
+
+    // create dummy info
+
+    uint8_t my_mac[6];
+    util::rand_mac(my_mac);
+
+    uint32_t my_ip = util::create_ip(10, 0, 0, 4);
 
     char dev_name[TAP_NAME_SIZE] = "tap0";
     tap_device* dev = new tap_device(dev_name);
@@ -82,7 +92,7 @@ int main() {
                 // Yes: (almost definitely)
                 //   [optionally check the hardware length ar_hln]
                 uint8_t hw_size = in_arp->get_hw_size();
-                cout << "hardware size: " << (int) hw_size << "\n";
+                cout << "hardware size: " << (int)hw_size << "\n";
 
                 //   ?Do I speak the protocol in ar_pro?
 
@@ -94,7 +104,7 @@ int main() {
                     //   Yes:
                     //     [optionally check the protocol length ar_pln]
                     uint8_t pro_size = in_arp->get_pro_size();
-                    cout << "protocol size: " << (int) pro_size << "\n";
+                    cout << "protocol size: " << (int)pro_size << "\n";
 
                     //     Merge_flag := false
                     bool merge_flag = false;
@@ -106,46 +116,64 @@ int main() {
                     //         the new information in the packet and set
                     //         Merge_flag to true.
                     for (int i = 0; i < trans_table_idx; ++i) {
-                        trans_entry* t = trans_table[i];
-                        if (t->pro_type == pro_type && t->hw_type == hw_type && t->s_ip == in_ipv4->get_s_ip()) {
-                            memcpy(t->s_mac, in_ipv4->get_s_mac(), 6);
+                        trans_entry& t = trans_table[i];
+
+                        if (t.pro_type == pro_type && t.hw_type == hw_type &&
+                            t.s_ip == in_ipv4->get_s_ip()) {
+
+                            memcpy(t.s_mac, in_ipv4->get_s_mac(), 6);
+
+                            merge_flag = true;
+
                         }
-                        merge_flag = true;
                     }
 
-
                     //     ?Am I the target protocol address?
-                    if (in_ipv4->get_d_ip() == util::create_ip(10, 0, 0, 1)) {
-                        //       If Merge_flag is false, add the triplet <protocol
-                        //       type,
+                    uint32_t target_ip = ntohl(in_ipv4->get_d_ip());
+                    if (target_ip == util::create_ip(10, 0, 0, 1)) {
+                        //       If Merge_flag is false, add the triplet
+                        //       <protocol type,
                         //           sender protocol address, sender hardware
                         //           address> to the translation table.
-                        //       ?Is the opcode ares_op_REQUEST?  (NOW look at the
+                        //       ?Is the opcode ares_op_REQUEST?  (NOW look at
+                        //       the
                         if (!merge_flag && trans_table_idx != CACHE_LEN) {
-                            trans_entry* t = trans_table[trans_table_idx];
-                            t->hw_type = hw_type;
-                            t->pro_type = pro_type;
-                            t->s_ip = in_ipv4->get_s_ip();
-                            memcpy(t->s_mac, in_ipv4->get_s_mac(), 6);
-                        }
-                        
-                        if (in_arp->get_op_code() == ARP_REQ) {
-                            //Reply with my ip & mac
-                            in_ipv4->set_d_ip(in_ipv4->get_s_ip());
-                            in_ipv4->set_d_mac(in_ipv4->get_d_mac());
+                            trans_entry& t = trans_table[trans_table_idx];
+                            t.hw_type = hw_type;
+                            t.pro_type = pro_type;
+                            t.s_ip = in_ipv4->get_s_ip();
+                            memcpy(t.s_mac, in_ipv4->get_s_mac(), 6);
 
-                            in_ipv4->set_s_ip(util::create_ip(10, 0, 0, 4));
-
-                            uint8_t r_mac[6];
-                            util::rand_mac(r_mac);
-                            in_ipv4->set_s_mac(r_mac);
-
-                            in_arp->set_op_code(ARP_REP);
-
-                            dev->write_eth(in_eth)
+                            ++trans_table_idx;
                         }
 
+                        uint16_t arp_op = ntohs(in_arp->get_op_code());
+                        if (arp_op == ARP_REQ) {
+                            // reply with my ip & mac
 
+                            // set dest addresses
+                            const uint8_t* dest_mac = in_ipv4->get_s_mac();
+                            uint32_t dest_ip = in_ipv4->get_s_ip();
+
+                            in_ipv4->set_d_ip(dest_ip);
+                            in_ipv4->set_d_mac(dest_mac);
+                            in_eth->set_dest(dest_mac);
+
+                            // set source addresses
+
+                            in_ipv4->set_s_ip(htonl(my_ip));
+
+                            in_ipv4->set_s_mac(my_mac);
+                            in_eth->set_source(my_mac);
+
+                            in_arp->set_op_code(htons(ARP_REP));
+
+                            bool success = dev->write_eth(in_eth, frame_size);
+
+                            if (success) {
+                                cout << "Successfully wrote frame\n";
+                            }
+                        }
                     }
                 }
             }

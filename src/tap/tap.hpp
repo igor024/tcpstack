@@ -22,7 +22,7 @@ class tap_device {
     public:
         tap_device(char* in_name);
         ssize_t read_tap(uint8_t* buf, size_t buf_len, eth_hdr*& hdr);
-        ssize_t write_eth(eth_hdr* in_eth_hdr);
+        bool write_eth(const eth_hdr* in_eth_hdr, size_t frame_size);
 
     private:
         int tap_alloc(char* name);
