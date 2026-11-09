@@ -1,4 +1,4 @@
-#pragma once
+pragma once
 #include <cstdint>
 
 class arp_hdr {
