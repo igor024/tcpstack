@@ -12,13 +12,6 @@
 #include <system_error>
 using namespace std;
 
-constexpr int BUF_LEN = 100;
-constexpr uint16_t IPV4_TYPE = 0x0800;
-constexpr uint16_t ARP_TYPE = 0x0806;
-constexpr uint16_t ETH_HW_TYPE = 0x0001;
-constexpr uint16_t ARP_REQ = 0x0001;
-constexpr uint16_t ARP_REP = 0x0002;
-
 uint16_t trans_table_idx = 0;
 
 int main() {
@@ -34,7 +27,7 @@ int main() {
     char dev_name[TAP_NAME_SIZE] = "tap0";
     tap_device* dev = new tap_device(dev_name);
 
-    uint8_t buf[BUF_LEN];
+    uint8_t buf[util::BUF_LEN];
 
     arp_pro arp = arp_pro();
 
@@ -42,7 +35,7 @@ int main() {
     eth_hdr* in_eth;
 
     while (true) {
-        ssize_t res = dev->read_tap(buf, BUF_LEN, in_eth);
+        ssize_t res = dev->read_tap(buf, util::BUF_LEN, in_eth);
 
         if (res <= 0) {
             cout << "read error\n";
@@ -54,24 +47,15 @@ int main() {
 
         const uint16_t ethertype = ntohs(in_eth->get_ethertype());
 
-        if (ethertype == IPV4_TYPE) {
+        if (ethertype == util::IPV4_TYPE) {
             cout << "IPv4 packet Incoming! \n";
 
             // do nothing
 
-        } else if (ethertype == ARP_TYPE) {
+        } else if (ethertype == util::ARP_TYPE) {
 
-            arp.handle_arp();
+            arp.handle_arp(my_ip, my_mac, dev, in_eth);
             
-           /*
-
-            const uint8_t* src = hdr->get_source();
-
-            for (int i = 0; i < 6; ++i) {
-                cout << *(src + i) << " ";
-            }
-            */
-            cout << "\n";
         }
     }
 }

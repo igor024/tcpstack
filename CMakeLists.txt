@@ -6,9 +6,10 @@ add_executable(tcp)
 target_sources(tcp
     PRIVATE
         src/main.cpp
+        src/util/util.cpp
         src/tap/tap.cpp
         src/arp/arp_hdr.cpp
         src/arp/arp_ipv4.cpp
+        src/arp/arp_pro.cpp
         src/ethernet/ethernet.cpp
-        src/util/util.cpp
 )
