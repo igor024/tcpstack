@@ -6,6 +6,7 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 IndentAccessModifiers: true
 IndentCaseLabels: true
+NamespaceIndentation: All
 
 # The anti-bin-packing rules:
 BinPackParameters: false
